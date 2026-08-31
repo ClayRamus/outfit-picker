@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What To Wear</title>
+<style>
+  :root{
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --text: #1b1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #3b6df0;
+    --accent-ink: #ffffff;
+    --pill: #eef1f8;
+    --danger: #e05252;
+    --shadow: 0 1px 3px rgba(20,20,30,0.06), 0 8px 24px rgba(20,20,30,0.06);
+    --radius: 16px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #14151a;
+      --card: #1e2027;
+      --text: #eef0f4;
+      --muted: #9aa0ac;
+      --border: #2c2f38;
+      --accent: #6f92ff;
+      --accent-ink: #101114;
+      --pill: #2a2d37;
+      --danger: #ff8080;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 18px 80px;
+  }
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  header.top h1{
+    font-size: 20px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  header.top p{
+    margin:2px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    background:var(--pill);
+    padding:4px;
+    border-radius:12px;
+    margin-bottom:20px;
+  }
+  nav.tabs button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:9px 10px;
+    border-radius:9px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  nav.tabs button.active{
+    background:var(--card);
+    color:var(--text);
+    box-shadow: var(--shadow);
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow: var(--shadow);
+  }
+  .weather-card{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .weather-emoji{ font-size:44px; line-height:1; }
+  .weather-main{ flex:1; min-width:0; }
+  .weather-temp{ font-size:30px; font-weight:700; letter-spacing:-0.02em; }
+  .weather-desc{ color:var(--muted); font-size:14px; margin-top:2px; }
+  .weather-loc{ color:var(--muted); font-size:12.5px; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .weather-actions{ display:flex; flex-direction:column; gap:6px; align-items:stretch; }
+  button.btn{
+    border:none;
+    border-radius:10px;
+    padding:9px 14px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button.btn-primary{ background:var(--accent); color:var(--accent-ink); }
+  button.btn-secondary{ background:var(--pill); color:var(--text); }
+  button.btn-danger{ background:transparent; color:var(--danger); }
+  button.btn:disabled{ opacity:0.55; cursor:default; }
+  .status-line{ font-size:12.5px; color:var(--muted); margin-top:10px; }
+  .status-line.err{ color:var(--danger); }
+
+  .manual-form{ display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .manual-form.open{ display:block; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .field{ flex:1; min-width:120px; display:flex; flex-direction:column; gap:4px; }
+  .field label{ font-size:12px; color:var(--muted); font-weight:600; }
+  input, select{
+    background: var(--bg);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:9px 10px;
+    font-size:14px;
+    color:var(--text);
+    width:100%;
+  }
+  input:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  h2.section-title{ font-size:15px; margin:0 0 12px; }
+  .outfit-grid{ display:flex; flex-direction:column; gap:10px; }
+  .outfit-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 12px;
+    background:var(--bg);
+    border-radius:12px;
+  }
+  .outfit-slot-icon{ font-size:22px; width:28px; text-align:center; flex-shrink:0; }
+  .outfit-slot-body{ flex:1; min-width:0; }
+  .outfit-slot-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); font-weight:700; }
+  .outfit-slot-name{ font-size:14.5px; font-weight:600; margin-top:1px; }
+  .outfit-slot-empty{ font-size:13.5px; color:var(--muted); font-style:italic; }
+  .accessories-line{ display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+  .pill{
+    background:var(--pill);
+    border-radius:999px;
+    padding:4px 10px;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .missing-box{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:12px;
+    background: color-mix(in srgb, var(--danger) 12%, var(--card));
+    border:1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
+    font-size:13px;
+  }
+  .missing-box strong{ display:block; margin-bottom:4px; font-size:13px; }
+
+  .empty-state{ text-align:center; color:var(--muted); font-size:14px; padding:20px 10px; }
+
+  .closet-add label.field-label{ font-size:12px; color:var(--muted); font-weight:600; }
+  .tag-check{ display:flex; align-items:center; gap:6px; font-size:13px; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:6px 10px; cursor:pointer; }
+  .tag-check input{ width:auto; }
+  .tag-checks{ display:flex; flex-wrap:wrap; gap:8px; }
+
+  .closet-group{ margin-bottom:14px; }
+  .closet-group h3{ font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin:0 0 8px; }
+  .closet-item{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:12px; background:var(--bg); margin-bottom:6px;
+  }
+  .closet-item-main{ flex:1; min-width:0; }
+  .closet-item-name{ font-size:14px; font-weight:600; }
+  .closet-item-meta{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .icon-btn{ background:transparent; border:none; color:var(--muted); font-size:16px; cursor:pointer; padding:4px 6px; }
+  .icon-btn:hover{ color:var(--danger); }
+
+  footer.note{ text-align:center; color:var(--muted); font-size:11.5px; margin-top:20px; line-height:1.5; }
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div>
+      <h1>What To Wear</h1>
+      <p>Weather-matched outfits from your own closet</p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button id="tabTodayBtn" class="active">Today</button>
+    <button id="tabClosetBtn">My Closet</button>
+  </nav>
+
+  <section id="tabToday">
+
+    <div class="card weather-card">
+      <div class="weather-emoji" id="weatherEmoji">🌤️</div>
+      <div class="weather-main">
+        <div class="weather-temp" id="weatherTemp">--°</div>
+        <div class="weather-desc" id="weatherDesc">No weather yet</div>
+        <div class="weather-loc" id="weatherLoc"></div>
+      </div>
+      <div class="weather-actions">
+        <button class="btn btn-primary" id="locateBtn">Use my location</button>
+        <button class="btn btn-secondary" id="manualToggleBtn">Enter manually</button>
+      </div>
+    </div>
+    <div class="status-line" id="weatherStatus"></div>
+
+    <div class="manual-form" id="manualForm">
+      <div class="row">
+        <div class="field">
+          <label for="manualTemp">Temperature (°F)</label>
+          <input type="number" id="manualTemp" placeholder="e.g. 62">
+        </div>
+        <div class="field">
+          <label for="manualCondition">Condition</label>
+          <select id="manualCondition">
+            <option value="clear">Clear / sunny</option>
+            <option value="cloudy">Cloudy</option>
+            <option value="rain">Rainy</option>
+            <option value="snow">Snowy</option>
+            <option value="fog">Foggy</option>
+            <option value="storm">Thunderstorm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="manualWind">Wind (mph)</label>
+          <input type="number" id="manualWind" placeholder="e.g. 10">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="applyManualBtn" style="width:100%">Use this weather</button>
+    </div>
+
+    <div class="card" id="outfitCard" hidden>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <h2 class="section-title" style="margin:0;">Today's outfit</h2>
+        <button class="btn btn-secondary" id="shuffleBtn">🔀 Try another</button>
+      </div>
+      <div class="outfit-grid" id="outfitGrid"></div>
+      <div id="missingBox"></div>
+    </div>
+
+    <div class="card empty-state" id="noWeatherState">
+      Get today's weather to see an outfit suggestion.
+    </div>
+
+    <div class="card empty-state" id="emptyClosetState" hidden>
+      Your closet is empty. Add some clothes in the <strong>My Closet</strong> tab and an outfit will appear here.
+    </div>
+
+  </section>
+
+  <section id="tabCloset" hidden>
+
+    <div class="card closet-add">
+      <h2 class="section-title">Add an item</h2>
+      <div class="row">
+        <div class="field">
+          <label for="itemName">Name</label>
+          <input type="text" id="itemName" placeholder="e.g. Grey wool sweater">
+        </div>
+        <div class="field">
+          <label for="itemCategory">Category</label>
+          <select id="itemCategory">
+            <option value="top">Top</option>
+            <option value="bottom">Bottom</option>
+            <option value="outerwear">Outerwear</option>
+            <option value="footwear">Footwear</option>
+            <option value="accessory">Accessory</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" id="warmthRow">
+        <div class="field">
+          <label for="itemWarmth">Warmth</label>
+          <select id="itemWarmth">
+            <option value="1">Light</option>
+            <option value="2" selected>Medium</option>
+            <option value="3">Heavy</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" id="propertiesRow">
+        <label class="tag-check"><input type="checkbox" id="itemWaterproof"> Waterproof</label>
+        <label class="tag-check"><input type="checkbox" id="itemWindproof"> Windproof</label>
+      </div>
+
+      <div class="row" id="accessoryTagsRow" hidden>
+        <div class="field">
+          <label class="field-label">Best for</label>
+          <div class="tag-checks">
+            <label class="tag-check"><input type="checkbox" class="accTag" value="cold"> Cold</label>
+            <label class="tag-check"><input type="checkbox" class="accTag" value="rain"> Rain</label>
+            <label class="tag-check"><input type="checkbox" class="accTag" value="snow"> Snow</label>
+            <label class="tag-check"><input type="checkbox" class="accTag" value="sun"> Sun</label>
+            <label class="tag-check"><input type="checkbox" class="accTag" value="wind"> Wind</label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="addItemBtn" style="width:100%; margin-top:6px;">Add to closet</button>
+    </div>
+
+    <div id="closetList"></div>
+
+  </section>
+
+  <footer class="note">
+    Your closet is saved in this browser only. Open this same file in the same browser to see it again later.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CATEGORY_LABEL = { top:"Top", bottom:"Bottom", outerwear:"Outerwear", footwear:"Footwear", accessory:"Accessory" };
+  var CATEGORY_LABEL_PLURAL = { top:"Tops", bottom:"Bottoms", outerwear:"Outerwear", footwear:"Footwear", accessory:"Accessories" };
+  var CATEGORY_ICON = { top:"👕", bottom:"👖", outerwear:"🧥", footwear:"👟", accessory:"🧣" };
+  var WARMTH_LABEL = { 1:"Light", 2:"Medium", 3:"Heavy" };
+  var TAG_LABEL = { cold:"Cold", rain:"Rain", snow:"Snow", sun:"Sun", wind:"Wind" };
+
+  // ---------- storage ----------
+  var closet = [];
+  try {
+    var saved = localStorage.getItem("outfitCloset_v1");
+    if (saved) closet = JSON.parse(saved) || [];
+  } catch (e) { closet = []; }
+
+  function saveCloset(){
+    try { localStorage.setItem("outfitCloset_v1", JSON.stringify(closet)); } catch (e) {}
+  }
+
+  // ---------- weather state ----------
+  var weather = null; // { tempF, condition: clear|cloudy|rain|snow|fog|storm, windMph, locationName }
+
+  // ---------- tabs ----------
+  var tabTodayBtn = document.getElementById("tabTodayBtn");
+  var tabClosetBtn = document.getElementById("tabClosetBtn");
+  var tabToday = document.getElementById("tabToday");
+  var tabCloset = document.getElementById("tabCloset");
+
+  tabTodayBtn.addEventListener("click", function(){ showTab("today"); });
+  tabClosetBtn.addEventListener("click", function(){ showTab("closet"); });
+
+  function showTab(name){
+    var isToday = name === "today";
+    tabToday.hidden = !isToday;
+    tabCloset.hidden = isToday;
+    tabTodayBtn.classList.toggle("active", isToday);
+    tabClosetBtn.classList.toggle("active", !isToday);
+  }
+
+  // ---------- weather: geolocation + open-meteo ----------
+  var locateBtn = document.getElementById("locateBtn");
+  var manualToggleBtn = document.getElementById("manualToggleBtn");
+  var manualForm = document.getElementById("manualForm");
+  var applyManualBtn = document.getElementById("applyManualBtn");
+  var weatherStatus = document.getElementById("weatherStatus");
+
+  manualToggleBtn.addEventListener("click", function(){
+    manualForm.classList.toggle("open");
+  });
+
+  locateBtn.addEventListener("click", function(){
+    if (!navigator.geolocation) {
+      setStatus("Geolocation isn't supported in this browser. Use manual entry instead.", true);
+      manualForm.classList.add("open");
+      return;
+    }
+    locateBtn.disabled = true;
+    setStatus("Locating you…", false);
+    navigator.geolocation.getCurrentPosition(onPosition, onPositionError, {
+      enableHighAccuracy: false,
+      timeout: 12000,
+      maximumAge: 10 * 60 * 1000
+    });
+  });
+
+  function onPositionError(err){
+    locateBtn.disabled = false;
+    var msg = "Couldn't get your location.";
+    if (err && err.code === 1) msg = "Location permission denied. Try manual entry below.";
+    else if (err && err.code === 3) msg = "Location request timed out. Try again or use manual entry.";
+    setStatus(msg, true);
+    manualForm.classList.add("open");
+  }
+
+  function onPosition(pos){
+    var lat = pos.coords.latitude, lon = pos.coords.longitude;
+    setStatus("Fetching weather…", false);
+
+    var weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
+      "&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto";
+
+    fetch(weatherUrl).then(function(r){
+      if (!r.ok) throw new Error("weather request failed");
+      return r.json();
+    }).then(function(data){
+      var cur = data.current || {};
+      var info = weatherCodeToInfo(cur.weather_code);
+      weather = {
+        tempF: Math.round(cur.temperature_2m),
+        condition: info.condition,
+        windMph: Math.round(cur.wind_speed_10m || 0),
+        locationName: null
+      };
+      locateBtn.disabled = false;
+      setStatus("Weather updated just now.", false);
+      renderWeatherCard();
+      renderOutfit(true);
+
+      // best-effort reverse geocode, don't block on it
+      fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat + "&longitude=" + lon + "&localityLanguage=en")
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(g){
+          if (g && weather) {
+            var city = g.city || g.locality || g.principalSubdivision;
+            weather.locationName = city ? (city + (g.countryCode ? ", " + g.countryCode : "")) : null;
+            renderWeatherCard();
+          }
+        })
+        .catch(function(){});
+    }).catch(function(){
+      locateBtn.disabled = false;
+      setStatus("Couldn't reach the weather service. Try again or use manual entry.", true);
+      manualForm.classList.add("open");
+    });
+  }
+
+  function weatherCodeToInfo(code){
+    // WMO weather codes used by Open-Meteo
+    if (code === 0) return { condition: "clear" };
+    if (code >= 1 && code <= 3) return { condition: "cloudy" };
+    if (code === 45 || code === 48) return { condition: "fog" };
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return { condition: "rain" };
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return { condition: "snow" };
+    if (code >= 95) return { condition: "storm" };
+    return { condition: "cloudy" };
+  }
+
+  applyManualBtn.addEventListener("click", function(){
+    var t = parseFloat(document.getElementById("manualTemp").value);
+    if (isNaN(t)) { setStatus("Enter a temperature to continue.", true); return; }
+    var cond = document.getElementById("manualCondition").value;
+    var wind = parseFloat(document.getElementById("manualWind").value);
+    if (isNaN(wind)) wind = 0;
+    weather = { tempF: Math.round(t), condition: cond, windMph: Math.round(wind), locationName: null };
+    setStatus("Using your manual weather entry.", false);
+    renderWeatherCard();
+    renderOutfit(true);
+  });
+
+  function setStatus(msg, isErr){
+    weatherStatus.textContent = msg;
+    weatherStatus.classList.toggle("err", !!isErr);
+  }
+
+  var CONDITION_META = {
+    clear: { emoji: "☀️", label: "Clear" },
+    cloudy: { emoji: "⛅", label: "Cloudy" },
+    fog: { emoji: "🌫️", label: "Foggy" },
+    rain: { emoji: "🌧️", label: "Rainy" },
+    snow: { emoji: "❄️", label: "Snowy" },
+    storm: { emoji: "⛈️", label: "Thunderstorms" }
+  };
+
+  function renderWeatherCard(){
+    var meta = CONDITION_META[weather.condition] || CONDITION_META.cloudy;
+    document.getElementById("weatherEmoji").textContent = meta.emoji;
+    document.getElementById("weatherTemp").textContent = weather.tempF + "°F";
+    document.getElementById("weatherDesc").textContent = meta.label + (weather.windMph >= 15 ? " · Windy" : "");
+    document.getElementById("weatherLoc").textContent = weather.locationName || "";
+  }
+
+  // ---------- closet form ----------
+  var itemCategory = document.getElementById("itemCategory");
+  var warmthRow = document.getElementById("warmthRow");
+  var propertiesRow = document.getElementById("propertiesRow");
+  var accessoryTagsRow = document.getElementById("accessoryTagsRow");
+  var itemWaterproofField = document.getElementById("itemWaterproof").closest(".tag-check");
+  var itemWindproofField = document.getElementById("itemWindproof").closest(".tag-check");
+
+  itemCategory.addEventListener("change", updateFormFields);
+  function updateFormFields(){
+    var cat = itemCategory.value;
+    warmthRow.hidden = cat === "accessory";
+    accessoryTagsRow.hidden = cat !== "accessory";
+    itemWaterproofField.hidden = !(cat === "outerwear" || cat === "footwear");
+    itemWindproofField.hidden = cat !== "outerwear";
+    propertiesRow.hidden = itemWaterproofField.hidden && itemWindproofField.hidden;
+  }
+  updateFormFields();
+
+  document.getElementById("addItemBtn").addEventListener("click", function(){
+    var name = document.getElementById("itemName").value.trim();
+    if (!name) { document.getElementById("itemName").focus(); return; }
+    var category = itemCategory.value;
+    var item = {
+      id: "i" + Date.now() + Math.floor(Math.random() * 1000),
+      name: name,
+      category: category
+    };
+    if (category !== "accessory") {
+      item.warmth = parseInt(document.getElementById("itemWarmth").value, 10);
+    }
+    if (category === "outerwear" || category === "footwear") {
+      item.waterproof = document.getElementById("itemWaterproof").checked;
+    }
+    if (category === "outerwear") {
+      item.windproof = document.getElementById("itemWindproof").checked;
+    }
+    if (category === "accessory") {
+      var tags = [];
+      document.querySelectorAll(".accTag:checked").forEach(function(cb){ tags.push(cb.value); });
+      item.tags = tags;
+    }
+    closet.push(item);
+    saveCloset();
+
+    document.getElementById("itemName").value = "";
+    document.getElementById("itemWaterproof").checked = false;
+    document.getElementById("itemWindproof").checked = false;
+    document.querySelectorAll(".accTag").forEach(function(cb){ cb.checked = false; });
+
+    renderClosetList();
+    renderOutfit(false);
+  });
+
+  function deleteItem(id){
+    closet = closet.filter(function(i){ return i.id !== id; });
+    saveCloset();
+    renderClosetList();
+    renderOutfit(false);
+  }
+
+  function describeItem(item){
+    var bits = [];
+    if (item.warmth) bits.push(WARMTH_LABEL[item.warmth]);
+    if (item.waterproof) bits.push("Waterproof");
+    if (item.windproof) bits.push("Windproof");
+    if (item.tags && item.tags.length) bits.push(item.tags.map(function(t){ return TAG_LABEL[t]; }).join(", "));
+    return bits.join(" · ");
+  }
+
+  function renderClosetList(){
+    var container = document.getElementById("closetList");
+    container.innerHTML = "";
+
+    if (closet.length === 0) {
+      var empty = document.createElement("div");
+      empty.className = "card empty-state";
+      empty.textContent = "No items yet. Add your first piece of clothing above.";
+      container.appendChild(empty);
+      return;
+    }
+
+    var order = ["top", "bottom", "outerwear", "footwear", "accessory"];
+    order.forEach(function(cat){
+      var items = closet.filter(function(i){ return i.category === cat; });
+      if (!items.length) return;
+      var group = document.createElement("div");
+      group.className = "card closet-group";
+      var h3 = document.createElement("h3");
+      h3.textContent = CATEGORY_ICON[cat] + " " + CATEGORY_LABEL_PLURAL[cat] + " (" + items.length + ")";
+      group.appendChild(h3);
+      items.forEach(function(item){
+        var row = document.createElement("div");
+        row.className = "closet-item";
+        var main = document.createElement("div");
+        main.className = "closet-item-main";
+        var nm = document.createElement("div");
+        nm.className = "closet-item-name";
+        nm.textContent = item.name;
+        var meta = document.createElement("div");
+        meta.className = "closet-item-meta";
+        meta.textContent = describeItem(item);
+        main.appendChild(nm);
+        main.appendChild(meta);
+        var delBtn = document.createElement("button");
+        delBtn.className = "icon-btn";
+        delBtn.textContent = "✕";
+        delBtn.title = "Remove";
+        delBtn.addEventListener("click", function(){ deleteItem(item.id); });
+        row.appendChild(main);
+        row.appendChild(delBtn);
+        group.appendChild(row);
+      });
+      container.appendChild(group);
+    });
+  }
+
+  // ---------- outfit engine ----------
+  function classifyTemp(tempF){
+    if (tempF >= 80) return "hot";
+    if (tempF >= 65) return "warm";
+    if (tempF >= 50) return "mild";
+    if (tempF >= 35) return "cool";
+    return "cold";
+  }
+
+  function precipFromCondition(cond){
+    if (cond === "rain" || cond === "storm") return "rain";
+    if (cond === "snow") return "snow";
+    return "none";
+  }
+
+  var lastOutfitSignature = null;
+
+  function buildOutfit(){
+    var band = classifyTemp(weather.tempF);
+    var precip = precipFromCondition(weather.condition);
+    var windy = weather.windMph >= 15;
+    var idealWarmth = { hot: 1, warm: 1, mild: 2, cool: 2, cold: 3 }[band];
+    var needsOuter = band === "cool" || band === "cold" || windy || precip !== "none";
+
+    function pick(category, opts){
+      opts = opts || {};
+      var items = closet.filter(function(i){ return i.category === category; });
+      if (!items.length) return null;
+      var scored = items.map(function(i){
+        var s = 0;
+        if (typeof i.warmth === "number") s -= Math.abs(i.warmth - idealWarmth) * 2;
+        if (opts.wantWaterproof) s += i.waterproof ? 3 : -1;
+        if (opts.wantWindproof) s += i.windproof ? 2 : 0;
+        return { item: i, score: s };
+      });
+      scored.sort(function(a, b){ return b.score - a.score; });
+      var best = scored[0].score;
+      var topTier = scored.filter(function(s){ return s.score >= best - 1; });
+      return topTier[Math.floor(Math.random() * topTier.length)].item;
+    }
+
+    var outfit = {
+      top: pick("top"),
+      bottom: pick("bottom"),
+      footwear: pick("footwear", { wantWaterproof: precip !== "none" }),
+      outerwear: needsOuter ? pick("outerwear", { wantWaterproof: precip !== "none", wantWindproof: windy }) : null
+    };
+
+    var neededTags = [];
+    if (band === "cold") neededTags.push("cold");
+    if (precip === "rain") neededTags.push("rain");
+    if (precip === "snow") neededTags.push("snow");
+    if (windy) neededTags.push("wind");
+    if (band === "hot" && weather.condition === "clear") neededTags.push("sun");
+
+    var accessoryPool = closet.filter(function(i){ return i.category === "accessory"; });
+    var accessories = [];
+    neededTags.forEach(function(tag){
+      var candidates = accessoryPool.filter(function(i){
+        return i.tags && i.tags.indexOf(tag) !== -1 && accessories.indexOf(i) === -1;
+      });
+      if (candidates.length) accessories.push(candidates[Math.floor(Math.random() * candidates.length)]);
+    });
+
+    var missing = [];
+    if (!outfit.top) missing.push("a top");
+    if (!outfit.bottom) missing.push("a bottom");
+    if (!outfit.footwear) missing.push("footwear");
+    if (needsOuter && !outfit.outerwear) {
+      if (precip !== "none") missing.push(precip === "snow" ? "waterproof outerwear for snow" : "a rain layer");
+      else if (band === "cold" || band === "cool") missing.push("a warm outerwear layer");
+      else missing.push("a windproof layer");
+    }
+    neededTags.forEach(function(tag){
+      if (!accessories.some(function(a){ return a.tags.indexOf(tag) !== -1; })) {
+        var label = { cold: "something warm like a hat or gloves", rain: "an umbrella or rain gear",
+          snow: "snow-ready accessories", wind: "a wind-blocking accessory", sun: "sunglasses or a sun hat" }[tag];
+        missing.push(label);
+      }
+    });
+
+    return { outfit: outfit, accessories: accessories, missing: missing };
+  }
+
+  function renderOutfit(forceNew){
+    var outfitCard = document.getElementById("outfitCard");
+    var noWeatherState = document.getElementById("noWeatherState");
+    var emptyClosetState = document.getElementById("emptyClosetState");
+
+    if (!weather) {
+      outfitCard.hidden = true;
+      noWeatherState.hidden = false;
+      emptyClosetState.hidden = true;
+      return;
+    }
+    noWeatherState.hidden = true;
+
+    if (closet.length === 0) {
+      outfitCard.hidden = true;
+      emptyClosetState.hidden = false;
+      return;
+    }
+    emptyClosetState.hidden = true;
+    outfitCard.hidden = false;
+
+    var result = buildOutfit();
+    var grid = document.getElementById("outfitGrid");
+    grid.innerHTML = "";
+
+    ["top", "bottom", "outerwear", "footwear"].forEach(function(cat){
+      var item = result.outfit[cat];
+      var row = document.createElement("div");
+      row.className = "outfit-row";
+      var icon = document.createElement("div");
+      icon.className = "outfit-slot-icon";
+      icon.textContent = CATEGORY_ICON[cat];
+      var body = document.createElement("div");
+      body.className = "outfit-slot-body";
+      var label = document.createElement("div");
+      label.className = "outfit-slot-label";
+      label.textContent = CATEGORY_LABEL[cat];
+      var val = document.createElement("div");
+      if (item) {
+        val.className = "outfit-slot-name";
+        val.textContent = item.name;
+      } else {
+        val.className = "outfit-slot-empty";
+        val.textContent = cat === "outerwear" ? "Not needed today" : "None in closet";
+      }
+      body.appendChild(label);
+      body.appendChild(val);
+      row.appendChild(icon);
+      row.appendChild(body);
+      grid.appendChild(row);
+    });
+
+    if (result.accessories.length) {
+      var accRow = document.createElement("div");
+      accRow.className = "outfit-row";
+      var accIcon = document.createElement("div");
+      accIcon.className = "outfit-slot-icon";
+      accIcon.textContent = "🧤";
+      var accBody = document.createElement("div");
+      accBody.className = "outfit-slot-body";
+      var accLabel = document.createElement("div");
+      accLabel.className = "outfit-slot-label";
+      accLabel.textContent = "Accessories";
+      var accLine = document.createElement("div");
+      accLine.className = "accessories-line";
+      result.accessories.forEach(function(a){
+        var p = document.createElement("span");
+        p.className = "pill";
+        p.textContent = a.name;
+        accLine.appendChild(p);
+      });
+      accBody.appendChild(accLabel);
+      accBody.appendChild(accLine);
+      accRow.appendChild(accIcon);
+      accRow.appendChild(accBody);
+      grid.appendChild(accRow);
+    }
+
+    var missingBox = document.getElementById("missingBox");
+    missingBox.innerHTML = "";
+    if (result.missing.length) {
+      var box = document.createElement("div");
+      box.className = "missing-box";
+      var strong = document.createElement("strong");
+      strong.textContent = "Your closet is missing:";
+      box.appendChild(strong);
+      box.appendChild(document.createTextNode(result.missing.join(", ") + "."));
+      missingBox.appendChild(box);
+    }
+  }
+
+  document.getElementById("shuffleBtn").addEventListener("click", function(){ renderOutfit(true); });
+
+  // ---------- init ----------
+  renderClosetList();
+  renderOutfit(false);
+})();
+</script>
+</body>
+</html>
